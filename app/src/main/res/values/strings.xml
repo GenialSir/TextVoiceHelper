@@ -1,0 +1,4 @@
+<resources>
+    <string name="app_name">TextVoiceHelper</string>
+    <string name="data_error">数据丢失或不支持</string>
+</resources>
