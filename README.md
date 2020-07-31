@@ -22,7 +22,7 @@ Automatically broadcast We-Chat text messages plugin.
         *	2，通过Hook微信在通讯时的调用消息的API（不过这块肯定是相对耗时的。所以，此文本播报项目我采用是第一种方案，毕竟时间成本太高的话，导致做出东西也相对意义上大打折扣。）
     * 对于微信的数据库解密方案，本文暂不做介绍。
 
-###	使用流程
+###   思路与实现
 *  首先在Xposed项目初始化时，实时检测微信进程，从而Hook住微信并在其运行时做对应的Hook处理。
     * CallingTheDog为本插件的入口类，用来初始化检测微信的主进程，以及微信的APP主UI（LauncherUI）的启动监听、数据库Cursor游标对象的获取。
     *       public class CallingTheDog implements IXposedHookLoadPackage {
@@ -336,3 +336,4 @@ Automatically broadcast We-Chat text messages plugin.
     * 转发注明出处即可，希望对正在阅读你有所启发与帮助
 
 
+https://juejin.im/post/6855571707592343559/
