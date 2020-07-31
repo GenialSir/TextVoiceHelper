@@ -5,7 +5,7 @@ Automatically broadcast We-Chat text messages plugin.
 ### 本意是为盲人群体做的一款微信语音辅助的小项目，虽然最终没有被启用，但其中涉及到的反编译思想（逆向思维）以及进程间通讯的模块还是对后续项目开发有一定裨益的。
 
 *   对于Android逆向项目，本项目目前使用的技术是Xposed框架，但是Xposed目前所知是需要手机Root后才可使用。
-*  Xposed设计思想是借用JAVA的反射机制来进行程序运行时，Hook所需模块来进行修改，从而达到自身需求。像微信机器人、滴滴自动抢单等之类的插件。 
+*  Xposed设计思想是借用JAVA的反射机制来实现的，Hook所需模块来进行修改，从而达到自身需求。像微信机器人、滴滴出行之类的自动抢单等的插件。 
     * Xposted相关资料的网址
     	* https://forum.xda-developers.com/showthread.php?t=3034811
 
@@ -20,9 +20,9 @@ Automatically broadcast We-Chat text messages plugin.
     * 若解决微信的聊天文本信息获取的方案，目前可行有两种：
     	*	1，通过目标APP的数据库用SQL语句进行数据的即时查找
         *	2，通过Hook微信在通讯时的调用消息的API（不过这块肯定是相对耗时的。所以，此文本播报项目我采用是第一种方案，毕竟时间成本太高的话，导致做出东西也相对意义上大打折扣。）
-    * 对于微信的数据库解密方案，本文暂不做介绍。
+    * 对于微信的数据库解密方案，本文不做介绍。
 
-###   思路与实现
+###	思路与实现
 *  首先在Xposed项目初始化时，实时检测微信进程，从而Hook住微信并在其运行时做对应的Hook处理。
     * CallingTheDog为本插件的入口类，用来初始化检测微信的主进程，以及微信的APP主UI（LauncherUI）的启动监听、数据库Cursor游标对象的获取。
     *       public class CallingTheDog implements IXposedHookLoadPackage {
@@ -174,16 +174,16 @@ Automatically broadcast We-Chat text messages plugin.
     * 如果需要支持中文，那首先可以想到使用三方语音API，如讯飞、百度语音等都可以实现，我在初次使用过程中遇到一些意料之外的问题：
      	*	语音API的初始化问题，APP的key签名注册问题。显然，这块直接使用微信的Context注册是有问题的。
     	*	如果不依赖微信的Context，可以使用自身插件的Context进行一个三方语音注册，我的 **TextVoiceHelper** 使用的是讯飞语音。但在使用自身插件的Context时，后面又遇到因进程间通讯而导致语音无法播报的问题。
-    	* 在使用ALDL过程中，发现对于Context传递不是很友好，直接支持的数据类型如下：
+    	* 在使用ALDL过程中，直接支持的数据类型如下：（本项目采用的是Socket）
         	* 基本数据类型（int、long、char、boolean、double等）；
         	* String和CharSequence；
        		* List：只支持ArrayList，里面每个元素都必须被AIDL支持；
         	* Map：只支持HashMap，里面每个元素都必须被AIDL支持，包括key和value；
         	* Parcelable：所有实现了Parceable接口的对象；
         	* AIDL：所有的AIDL接口本身也可以在AIDL文件中使用（AIDL接口中只支持方法，不支持声明静态常量，这一点区别于传统接口）。
-    * 若采用将插件的Context传递给微信进程中来进行初始化讯飞语音API的操作，这个思路整体感觉很矛盾且不清晰，并且要兼容Context也是多了些不必要的手段。
-        * 为了聊天文本数据能够跨进程传输，可以借助Socket来进行传输通信。也避免了使用微信Context初始化自己注册讯飞的尴尬与**TextVoiceHelper**在注册讯飞后，获取微信聊天数据遇到进程通讯的问题。
-        * **假设我们将微信文本数据监听这块视为Socket的发送端，自身插件注册服务视为Socket接受端，那么整体语音播报处理流程是不是更清晰简洁了呢？**
+    * 若采用将插件的Context传递给微信进程中来进行初始化讯飞语音API的操作，这个思路整体感觉很矛盾且不清晰，并且Context在多进程情况下也是问题很多。
+        * 那么就不用在跨进程传输Context上下功夫，而是直接将聊天数据跨进程传输，从而借助Socket来进行跨进程传输通信，只需在**TextVoiceHelper**进程内注册的讯飞直接播报即可。也避免了使用微信Context初始化自己注册讯飞的尴尬与**TextVoiceHelper**在注册讯飞后，获取微信聊天数据遇到进程通讯的问题。
+        * **按照上述思路，将微信文本数据监听这块视为Socket的发送端，自身插件注册服务视为Socket接受端，那么整体语音播报处理流程是不是更清晰简洁了呢？**
 * 通过将微信与插件分为客户发送端与服务接受端，得到如下的Socket客户端代码：
     *       private static void connectTCPServer() {
     
@@ -334,6 +334,7 @@ Automatically broadcast We-Chat text messages plugin.
 *   项目**TextVoiceHelper**Github地址
     * https://github.com/GenialSir/TextVoiceHelper.git    
     * 转发注明出处即可，希望对正在阅读你有所启发与帮助
+
 
 
 https://juejin.im/post/6855571707592343559/
