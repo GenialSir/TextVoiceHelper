@@ -181,8 +181,8 @@ Automatically broadcast We-Chat text messages plugin.
         	* Map：只支持HashMap，里面每个元素都必须被AIDL支持，包括key和value；
         	* Parcelable：所有实现了Parceable接口的对象；
         	* AIDL：所有的AIDL接口本身也可以在AIDL文件中使用（AIDL接口中只支持方法，不支持声明静态常量，这一点区别于传统接口）。
-    * 若采用将插件的Context传递给微信进程中来进行初始化讯飞语音API的操作，这个思路整体感觉不太清晰，有点过于麻烦，并且要兼容Context也是多了些不必要的手段。
-        * 为了聊天文本能够跨进程传输，可以借助Socket来进行传输通信。也避免了使用微信Context初始化自己注册讯飞的尴尬与**TextVoiceHelper**在注册讯飞后，获取微信聊天数据遇到进程通讯的问题。
+    * 若采用将插件的Context传递给微信进程中来进行初始化讯飞语音API的操作，这个思路整体感觉很矛盾且不清晰，并且要兼容Context也是多了些不必要的手段。
+        * 为了聊天文本数据能够跨进程传输，可以借助Socket来进行传输通信。也避免了使用微信Context初始化自己注册讯飞的尴尬与**TextVoiceHelper**在注册讯飞后，获取微信聊天数据遇到进程通讯的问题。
         * **假设我们将微信文本数据监听这块视为Socket的发送端，自身插件注册服务视为Socket接受端，那么整体语音播报处理流程是不是更清晰简洁了呢？**
 * 通过将微信与插件分为客户发送端与服务接受端，得到如下的Socket客户端代码：
     *       private static void connectTCPServer() {
@@ -334,4 +334,5 @@ Automatically broadcast We-Chat text messages plugin.
 *   项目**TextVoiceHelper**Github地址
     * https://github.com/GenialSir/TextVoiceHelper.git    
     * 转发注明出处即可，希望对正在阅读你有所启发与帮助
+
 
